@@ -1,0 +1,37 @@
+[tools]
+arduino = "1.2.0"
+
+[env]
+ARDUINO_BOARD_MANAGER_ADDITIONAL_URLS = "https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_dev_index.json"
+ARDUINO_DIRECTORIES_DATA = "{{config_root}}/arduino.tmp"
+ARDUINO_LIBRARY_ENABLE_UNSAFE_INSTALL = "true"
+
+[hooks]
+postinstall = [
+  "arduino-cli core update-index",
+  "pip install pyserial~=3.4",
+]
+
+[vars]
+um_args = ""
+m_args = ""
+
+[tasks]
+cu = { depends = ["c", "u"] }
+um = { depends = ["u"], run = "sleep 1", depends_post = ["m"] }
+cum = { depends = ["c", "um"] }
+
+[tasks.c]
+run = "arduino-cli compile"
+dir = "{{cwd}}"
+
+[tasks.u]
+run = "arduino-cli upload {{vars.um_args}}"
+dir = "{{cwd}}"
+wait_for = "c"
+
+[tasks.m]
+run = "arduino-cli monitor {{vars.um_args}} {{vars.m_args}}"
+dir = "{{cwd}}"
+wait_for = "u"
+raw = true

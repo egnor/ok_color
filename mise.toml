@@ -1,0 +1,23 @@
+[tools]
+python = "3.12"
+
+[settings]
+experimental = true
+fetch_remote_versions_timeout = "30"
+python_compile = false
+
+[env]
+_.python.venv = { path = "venv.tmp", create = true }
+
+[hooks]
+postinstall = [
+  "git lfs install --local",
+  "git lfs pull",
+]
+
+[tasks.tag]
+run = [
+  "git pull",
+  "git tag -a v{{arg(name='version')}} -m 'Version {{arg(name='version')}}'",
+  "git push --tags",
+]
