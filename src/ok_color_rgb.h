@@ -2,6 +2,9 @@
 
 #pragma once
 
+#include <algorithm>
+#include <cstdint>
+
 // 24-bit sRGB color as used in PC graphics, #xxxxxx codes, image files, etc.
 // https://en.wikipedia.org/wiki/SRGB
 //
@@ -37,82 +40,127 @@ struct ok_hsv32 { uint16_t h; uint8_t s, v; };
 struct ok_hsv48 { uint16_t h, s, v; };
 
 //
-// Color space conversions
+// Color space conversions: [ok_type]_from([ok_other_type] value)
 //
 
+// Range conversion helper
+struct ok_ratio { const int num, den; }
+int operator*(ok_ratio r, int x) { return (x * r.num + r.den / 2) / r.den; }
+int operator/(ok_ratio r, int x) { return (x * r.den + r.num / 2) / r.num; }
+
 // Simple ratio RGB conversions (G ratio specified separately to allow 5:6:5)
-#define G_RB_RATIO_BETWEEN(A, B, j, k, a, b) \
-  inline A A##_from(B x) { return { x.r * a / b, x.g * j / k, x.b * a / b }; } \
-  inline B B##_from(A x) { return { x.r * b / a, x.g * k / j, x.b * b / a }; }
+#define RB_G_RATIO(A, B, rat, g_rat) \
+  inline A A##_from(B x) { return { x.r * rat, x.g * g_rat, x.b * rat }; } \
+  inline B B##_from(A x) { return { x.r / rat, x.g * g_rat, x.b * rat }; }
 
 // Simple ratio HSV conversions (H ratio specified separately)
-#define H_SV_RATIO_BETWEEN(A, B, j, k, a, b) \
-  inline A A##_from(B x) { return { x.h * j / k, x.s * a / b, x.v * a / b }; } \
-  inline B B##_from(A x) { return { x.h * j / k, x.s * b / a, x.v * b / a }; }
+#define H_SV_RATIO(A, B, h_rat, rat) \
+  inline A A##_from(B x) { return { x.h * h_rat, x.s * rat, x.v * rat }; } \
+  inline B B##_from(A x) { return { x.h / h_rat, x.s / rat, x.v * rat }; }
 
 // Multi-step conversions
-#define CHAIN_BETWEEN(A, B, C) \
+#define CHAIN(A, B, C) \
   inline A A##_from(C x) { return A##_from(B##_from(x)); } \
   inline C C##_from(A x) { return C##_from(B##_from(x)); } \
 
-G_RB_RATIO_BETWEEN(ok_srgb16, ok_srgb24, 63, 255, 31, 255);
-G_RB_RATIO_BETWEEN(ok_srgb16, ok_srgb48, 63, 65535, 31, 65535);
-CHAIN_BETWEEN(ok_srgb16, ok_srgb24, ok_lrgb24);
-CHAIN_BETWEEN(ok_srgb16, ok_srgb24, ok_lrgb48);
-CHAIN_BETWEEN(ok_srgb16, ok_srgb24, ok_hsv24);
-CHAIN_BETWEEN(ok_srgb16, ok_srgb24, ok_hsv360);
-CHAIN_BETWEEN(ok_srgb16, ok_srgb48, ok_hsv32);
-CHAIN_BETWEEN(ok_srgb16, ok_srgb48, ok_hsv48);
+RB_G_RATIO(ok_srgb16, ok_srgb24, ok_ratio{31, 255}, ok_ratio{31, 255});
+RB_G_RATIO(ok_srgb16, ok_srgb48, ok_ratio{31, 65535}, ok_ratio{63, 65535});
+CHAIN(ok_srgb16, ok_srgb24, ok_lrgb24);
+CHAIN(ok_srgb16, ok_srgb24, ok_lrgb48);
+CHAIN(ok_srgb16, ok_srgb24, ok_hsv24);
+CHAIN(ok_srgb16, ok_srgb24, ok_hsv360);
+CHAIN(ok_srgb16, ok_srgb48, ok_hsv32);
+CHAIN(ok_srgb16, ok_srgb48, ok_hsv48);
 
-G_RB_RATIO_BETWEEN(ok_srgb24, ok_srgb48, 255, 65535, 255, 65535);
-CHAIN_BETWEEN(ok_srgb24, ok_srgb48, ok_lrgb24);
-CHAIN_BETWEEN(ok_srgb24, ok_srgb48, ok_lrgb48);
-CHAIN_BETWEEN(ok_srgb24, ok_hsv32, ok_hsv24);
-CHAIN_BETWEEN(ok_srgb24, ok_hsv32, ok_hsv360);
+RB_G_RATIO(ok_srgb24, ok_srgb48, ok_ratio{255, 65535}, ok_ratio{255, 65535});
+CHAIN(ok_srgb24, ok_srgb48, ok_lrgb24);
+CHAIN(ok_srgb24, ok_srgb48, ok_lrgb48);
+CHAIN(ok_srgb24, ok_hsv32, ok_hsv24);
+CHAIN(ok_srgb24, ok_hsv32, ok_hsv360);
 // ok_srgb24 <-> ok_hsv32 defined below
-CHAIN_BETWEEN(ok_srgb24, ok_hsv32, ok_hsv48);
+CHAIN(ok_srgb24, ok_hsv32, ok_hsv48);
 
-CHAIN_BETWEEN(ok_srgb48, ok_lrgb48, ok_lrgb24);
+CHAIN(ok_srgb48, ok_lrgb48, ok_lrgb24);
 // ok_srgb48 <-> ok_lrgb48 defined below
-CHAIN_BETWEEN(ok_srgb48, ok_srgb24, ok_hsv24);
-CHAIN_BETWEEN(ok_srgb48, ok_srgb24, ok_hsv360);
-CHAIN_BETWEEN(ok_srgb48, ok_hsv48, ok_hsv32);
+CHAIN(ok_srgb48, ok_srgb24, ok_hsv24);
+CHAIN(ok_srgb48, ok_srgb24, ok_hsv360);
+CHAIN(ok_srgb48, ok_hsv48, ok_hsv32);
 // ok_srgb48 <-> ok_hsv48 defined below
 
-G_RB_RATIO_BETWEEN(ok_lrgb24, ok_lrgb48, 255, 65535, 255, 65535);
-CHAIN_BETWEEN(ok_lrgb24, ok_srgb24, ok_hsv24);
-CHAIN_BETWEEN(ok_lrgb24, ok_srgb24, ok_hsv360);
-CHAIN_BETWEEN(ok_lrgb24, ok_srgb48, ok_hsv32);
-CHAIN_BETWEEN(ok_lrgb24, ok_srgb48, ok_hsv48);
+RB_G_RATIO(ok_lrgb24, ok_lrgb48, ok_ratio{255, 65535}, ok_ratio{255, 65535});
+CHAIN(ok_lrgb24, ok_srgb24, ok_hsv24);
+CHAIN(ok_lrgb24, ok_srgb24, ok_hsv360);
+CHAIN(ok_lrgb24, ok_srgb48, ok_hsv32);
+CHAIN(ok_lrgb24, ok_srgb48, ok_hsv48);
+CHAIN(ok_lrgb48, ok_srgb24, ok_hsv24);
+CHAIN(ok_lrgb48, ok_srgb24, ok_hsv360);
+CHAIN(ok_lrgb48, ok_srgb48, ok_hsv32);
+CHAIN(ok_lrgb48, ok_srgb48, ok_hsv48);
 
-CHAIN_BETWEEN(ok_lrgb48, ok_srgb24, ok_hsv24);
-CHAIN_BETWEEN(ok_lrgb48, ok_srgb24, ok_hsv360);
-CHAIN_BETWEEN(ok_lrgb48, ok_srgb48, ok_hsv32);
-CHAIN_BETWEEN(ok_lrgb48, ok_srgb48, ok_hsv48);
+H_SV_RATIO(ok_hsv24, ok_hsv360, ok_ratio{255, 360}, ok_ratio{255, 100});
+H_SV_RATIO(ok_hsv24, ok_hsv32, ok_ratio{255, 65535}, ok_ratio{255, 255});
+H_SV_RATIO(ok_hsv24, ok_hsv48, ok_ratio{255, 65535}, ok_ratio{255, 65535});
+H_SV_RATIO(ok_hsv360, ok_hsv32, ok_ratio{360, 65535}, ok_ratio{255, 255});
+H_SV_RATIO(ok_hsv360, ok_hsv48, ok_ratio{360, 65535}, ok_ratio{255, 65535});
+H_SV_RATIO(ok_hsv32, ok_hsv48, ok_ratio{65535, 65535}, ok_ratio{255, 65535});
 
-H_SV_RATIO_BETWEEN(ok_hsv24, ok_hsv360, 255, 360, 255, 100);
-H_SV_RATIO_BETWEEN(ok_hsv24, ok_hsv32, 255, 65535, 255, 255);
-H_SV_RATIO_BETWEEN(ok_hsv24, ok_hsv48, 255, 65535, 255, 65535);
-
-H_SV_RATIO_BETWEEN(ok_hsv360, ok_hsv32, 360, 65535, 255, 255);
-H_SV_RATIO_BETWEEN(ok_hsv360, ok_hsv48, 360, 65535, 255, 65535);
-
-H_SV_RATIO_BETWEEN(ok_hsv32, ok_hsv48, 65535, 65535, 255, 65535);
-
-#undef G_RB_RATIO_BETWEEN
-#undef H_SV_RATIO_BETWEEN
-#undef CHAIN_BETWEEN
+#undef G_RB_RATIO
+#undef H_SV_RATIO
+#undef CHAIN
 
 inline ok_srgb24 ok_srgb24_from(ok_hsv32 hsv) {
+  uint8_t const range = hsv.v * hsv.s / 255;
+  uint8_t const max = hsv.v, min = max - range;
+  uint8_t const partial = (hsv.h * 6 % 65536) * range / 65536;
+  switch (hsv.h * 6 / 65536) {
+    case 0: return { max, min + partial, min };
+    case 1: return { max - partial, max, min };
+    case 2: return { min, max, min + partial };
+    case 3: return { min, max - partial, max };
+    case 4: return { min + partial, min, max };
+    case 5: return { max, min, max - partial };
+    default: return { 0, 0, 0 };  // unreachable
+  }
 }
 
 inline ok_hsv32 ok_hsv32_from(ok_srgb24 rgb) {
+  uint8_t const max = std::max({ rgb.r, rgb.g, rgb.b });
+  uint8_t const min = std::min({ rgb.r, rgb.g, rgb.b });
+  uint8_t const range = max - min;
+  if (range == 0) return { 0, 0, max };
+
+  uint8_t const sat = range * 255 / max;
+  if (max == rgb.r && min == rgb.b) {
+    return { (rgb.g - min) * 65536 / (range * 6), sat, max };
+  } else if (max == rgb.g && min == rgb.b) {
+    return { (max - rgb.r + range) * 65536 / (range * 6), sat, max };
+  } else if (max == rgb.g && min == rgb.r) {
+    return { (rgb.b - min + range * 2) * 65536 / (range * 6), sat, max };
+  } else if (max == rgb.b && min == rgb.r) {
+    return { (max - rgb.g + range * 3) * 65536 / (range * 6), sat, max };
+  } else if (max == rgb.b && min == rgb.g) {
+    return { (rgb.r - min + range * 4) * 65536 / (range * 6), sat, max };
+  } else {
+    return { (max - rgb.b + range * 5) * 65536 / (range * 6), sat, max };
+  }
 }
 
-inline ok_srgb48 ok_srgb24_from(ok_hsv48 hsv) {
+inline ok_srgb48 ok_srgb48_from(ok_hsv48 hsv) {
+  uint16_t const range = hsv.v * hsv.s / 65535;
+  uint16_t const max = hsv.v, min = max - range;
+  uint16_t const partial = (hsv.h * 6 % 65536) * range / 65536;
+  switch (hsv.h * 6 / 65536) {
+    case 0: return { max, min + partial, min };
+    case 1: return { max - partial, max, min };
+    case 2: return { min, max, min + partial };
+    case 3: return { min, max - partial, max };
+    case 4: return { min + partial, min, max };
+    case 5: return { max, min, max - partial };
+    default: return { 0, 0, 0 };  // unreachable
+  }
 }
 
-inline ok_hsv48 ok_hsv32_from(ok_srgb48 rgb) {
+inline ok_hsv48 ok_hsv48_from(ok_srgb48 rgb) {
 }
 
 inline ok_srgb48 ok_srgb48_from(ok_lrgb48 lin) {
