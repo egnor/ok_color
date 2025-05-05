@@ -4,13 +4,13 @@
 
 template <typename RgbT, uint max_rgb, typename HsvT, uint h_wrap, uint max_sv>
 static RgbT rgb_from_hsv(HsvT hsv) {
-  typeof(HsvT::v) const hsv_chr = hsv.s * hsv.v / max_sv;
-  typeof(RgbT::g) const rgb_range = (hsv_chr * max_rgb + max_sv / 2) / max_sv;
-  typeof(RgbT::g) const rgb_top = (hsv.v * max_rgb + max_sv / 2) / max_sv;
-  typeof(RgbT::g) const rgb_bot = rgb_top - rgb_range;
-  typeof(RgbT::g) const rgb_delta = (hsv.h * 6 % h_wrap) * rgb_range / h_wrap;
-  typeof(RgbT::g) const rgb_in = rgb_bot + rgb_delta;
-  typeof(RgbT::g) const rgb_out = rgb_top - rgb_delta;
+  decltype(HsvT::v) const hsv_chr = hsv.s * hsv.v / max_sv;
+  decltype(RgbT::g) const rgb_range = (hsv_chr * max_rgb + max_sv / 2) / max_sv;
+  decltype(RgbT::g) const rgb_top = (hsv.v * max_rgb + max_sv / 2) / max_sv;
+  decltype(RgbT::g) const rgb_bot = rgb_top - rgb_range;
+  decltype(RgbT::g) const rgb_delta = (hsv.h * 6 % h_wrap) * rgb_range / h_wrap;
+  decltype(RgbT::g) const rgb_in = rgb_bot + rgb_delta;
+  decltype(RgbT::g) const rgb_out = rgb_top - rgb_delta;
   switch (hsv.h * 6 / h_wrap) {
     case 0: return { rgb_top, rgb_in, rgb_bot };
     case 1: return { rgb_out, rgb_top, rgb_bot };
@@ -24,13 +24,13 @@ static RgbT rgb_from_hsv(HsvT hsv) {
 
 template <typename HsvT, uint h_wrap, uint max_sv, typename RgbT, uint max_rgb>
 static HsvT hsv_from_rgb(RgbT rgb) {
-  typeof(RgbT::g) const rgb_top = std::max({ rgb.r, rgb.g, rgb.b });
-  typeof(RgbT::g) const rgb_bot = std::min({ rgb.r, rgb.g, rgb.b });
-  typeof(RgbT::g) const rgb_range = rgb_top - rgb_bot;
-  typeof(HsvT::v) const val = (rgb_top * max_sv + max_rgb / 2) / max_rgb;
+  decltype(RgbT::g) const rgb_top = std::max({ rgb.r, rgb.g, rgb.b });
+  decltype(RgbT::g) const rgb_bot = std::min({ rgb.r, rgb.g, rgb.b });
+  decltype(RgbT::g) const rgb_range = rgb_top - rgb_bot;
+  decltype(HsvT::v) const val = (rgb_top * max_sv + max_rgb / 2) / max_rgb;
   if (rgb_range == 0) return { 0, 0, val };
 
-  typeof HsvT::h hue;
+  decltype(HsvT::h) hue;
   if (rgb_top == rgb.r && rgb_bot == rgb.b) {
     hue = (rgb.g - rgb_bot) * h_wrap / (rgb_range * 6);
   } else if (rgb_top == rgb.g && rgb_bot == rgb.b) {
@@ -45,7 +45,7 @@ static HsvT hsv_from_rgb(RgbT rgb) {
     hue = (rgb_top - rgb.b + rgb_range * 5) * h_wrap / (rgb_range * 6);
   }
 
-  typeof(HsvT::s) const sat = (rgb_range * max_sv + rgb_top / 2) / rgb_top;
+  decltype(HsvT::s) const sat = (rgb_range * max_sv + rgb_top / 2) / rgb_top;
   return { hue, sat, val };
 }
 

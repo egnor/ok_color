@@ -20,7 +20,7 @@ postinstall = [
 [tasks.test]
 dir = "tests"
 run = [
-  "meson setup build.tmp",
+  "test -d build.tmp || meson setup build.tmp",
   "ninja -C build.tmp test",
 ]
 
