@@ -9,12 +9,14 @@ project(
   },
 )
 
+ok_color_inc = include_directories('../src')
+
 ok_color_lib = library(
   'ok_color_lib', [
     '../src/ok_color_hsv.cpp',
     '../src/ok_color_lrgb.cpp',
   ],
-  include_directories: '../src',
+  include_directories: ok_color_inc,
 )
 
 doctest_dep = dependency('doctest')
@@ -23,8 +25,9 @@ foreach test_name : ['helpers_test']
   test(
     test_name, executable(
       test_name, [test_name + '.cpp'],
-      link_with: ok_color_lib,
       dependencies: doctest_dep,
+      include_directories: ok_color_inc,
+      link_with: ok_color_lib,
     )
   )
 endforeach
