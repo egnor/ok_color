@@ -7,10 +7,7 @@ ARDUINO_DIRECTORIES_DATA = "{{config_root}}/arduino.tmp"
 ARDUINO_LIBRARY_ENABLE_UNSAFE_INSTALL = "true"
 
 [hooks]
-postinstall = [
-  "arduino-cli core update-index",
-  "pip install pyserial~=3.4",
-]
+postinstall = "arduino-cli core update-index"
 
 [vars]
 um_args = ""

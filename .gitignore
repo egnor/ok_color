@@ -12,6 +12,10 @@ _autosave-*
 .vscode/
 .idea/
 
+# Meson
+**/subprojects/*
+!**/subprojects/*.wrap
+
 # Python
 *.egg-info
 *.pyc

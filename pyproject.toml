@@ -1,0 +1,16 @@
+# Python project metadata, including dependencies & tool settings
+# https://snarky.ca/what-the-heck-is-pyproject-toml
+
+[project]
+name = "ok-color-dev"
+version = "0.1"
+requires-python = ">=3.12"
+
+# Development dependencies
+dependencies = [
+  "meson~=1.8.0",
+  "ninja>=1.11.1.4",
+  "ok-logging-setup~=0.1",
+  "ok-subprocess-defaults~=0.1",
+  "pyserial~=3.4", # needed for arduino-cli and port discovery
+]
