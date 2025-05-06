@@ -20,7 +20,10 @@ struct ok_srgb_565 { uint16_t r: 5, g: 6, b: 5; };
 // 48-bit sRGB (0-65535 instead of 0-255).
 struct ok_srgb_HHH { uint16_t r, g, b; };
 
-// Conversions: [ok_type]_from([ok_other_type] value)
+//
+// Conversions: <type>_from(<other>), eg. ok_srgb_888_from(ok_srgb_565 value)
+//
+
 OK_CONV_RB_G(ok_srgb_565, ok_srgb_888, ok_5_8, ok_8_5, ok_6_8, ok_8_6);
 OK_CONV_RB_G(ok_srgb_565, ok_srgb_HHH, ok_5_16, ok_16_5, ok_6_16, ok_16_6);
 OK_CONV_RB_G(ok_srgb_888, ok_srgb_HHH, ok_8_16, ok_16_8, ok_8_16, ok_16_8);

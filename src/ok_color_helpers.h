@@ -24,10 +24,10 @@
   inline A A##_from(B x) { return { h_ba(x.h), sv_ba(x.s), sv_ba(x.v)}; } \
   inline B B##_from(A x) { return { h_ab(x.h), sv_ab(x.s), sv_ab(x.v)}; }
 
-// Range conversion helpers for scalars: ok_[x]_[y] converts x-bit to y-bit
+// Conversion helpers for scalar values: ok_[x]_[y] converts x-bit to y-bit
 // (_pc and _deg are 7-bit percent and 9-bit degree, respectively)
 
-// Value conversions: interpolate between 0=>0 and a_max=>b_max
+// Range conversions: interpolate between 0=>0 and a_max=>b_max
 inline uint8_t ok_5_8(uint8_t x) { return (x * 255 + 15) / 31; }
 inline uint8_t ok_8_5(uint8_t x) { return (x * 31 + 127) / 255; }
 inline uint16_t ok_5_16(uint8_t x) { return (x * 65535 + 15) / 31; }
