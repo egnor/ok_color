@@ -12,45 +12,46 @@
   inline A A##_from(C x) { return A##_from(B##_from(x)); } \
   inline C C##_from(A x) { return C##_from(B##_from(x)); } \
 
-// RGB range conversion (G conversion specified separately to allow 5:6:5)
-// Expects a range conversion helper name for 'cv' and 'g_cv'
-#define OK_CONV_RB_G(A, B, cv, g_cv) \
-  inline A A##_from(B x) { return { cv(x.r), g_cv(x.g), cv(x.b) }; } \
-  inline B B##_from(A x) { return { cv##_r(x.r), g_cv##_r(x.g), cv##_r(x.b) }; }
+// RGB range conversion (RB and G conversions specified separately for 5:6:5)
+// Expects range conversion helper functions for {rb, g}_{ab, ba} parameters
+#define OK_CONV_RB_G(A, B, rb_ab, rb_ba, g_ab, g_ba) \
+  inline A A##_from(B x) { return { rb_ba(x.r), g_ba(x.g), rb_ba(x.b) }; } \
+  inline B B##_from(A x) { return { rb_ab(x.r), g_ab(x.g), rb_ab(x.b) }; }
 
-// HSV range conversions (H conversion specified separately)
-// Expects a range conversion helper name for 'h_cv' and 'cv'
-#define OK_CONV_H_SV(A, B, h_cv, cv) \
-  inline A A##_from(B x) { return { h_cv(x.h), cv(x.s), cv(x.v)}; } \
-  inline B B##_from(A x) { return { h_cv##_r(x.h), cv##_r(x.s), cv##_r(x.v)}; }
+// HSV range conversions (H and SV conversions specified separately)
+// Expects range conversion helper functions for {h, sv}_{ab, ba} parameters
+#define OK_CONV_H_SV(A, B, h_ab, h_ba, sv_ab, sv_ba) \
+  inline A A##_from(B x) { return { h_ba(x.h), sv_ba(x.s), sv_ba(x.v)}; } \
+  inline B B##_from(A x) { return { h_ab(x.h), sv_ab(x.s), sv_ab(x.v)}; }
 
-// Range conversion helpers. The odd naming scheme is helpful for macros:
-//   smaller_val = ok_conv_[smaller_type]_[larger_type}(larger_val)
-//   larger_val = ok_conv_[smaller_type]_[larger_type]_r(smaller_val)
-inline uint8_t ok_conv_5_8(uint8_t x) { return (x * 31 + 127) / 255; }
-inline uint8_t ok_conv_5_8_r(uint8_t x) { return (x * 255 + 15) / 31; }
-inline uint8_t ok_conv_5_16(uint16_t x) { return (x * 31 + 32767) / 65535; }
-inline uint16_t ok_conv_5_16_r(uint8_t x) { return (x * 65535 + 15) / 32767; }
+// Range conversion helpers for scalars: ok_[x]_[y] converts x-bit to y-bit
+// (_pc and _deg are 7-bit percent and 9-bit degree, respectively)
 
-inline uint8_t ok_conv_6_8(uint8_t x) { return (x * 63 + 127) / 255; }
-inline uint8_t ok_conv_6_8_r(uint8_t x) { return (x * 255 + 31) / 63; }
-inline uint8_t ok_conv_6_16(uint16_t x) { return (x * 63 + 32767) / 65535; }
-inline uint16_t ok_conv_6_16_r(uint8_t x) { return (x * 65535 + 31) / 32767; }
+// Value conversions: interpolate between 0=>0 and a_max=>b_max
+inline uint8_t ok_5_8(uint8_t x) { return (x * 255 + 15) / 31; }
+inline uint8_t ok_8_5(uint8_t x) { return (x * 31 + 127) / 255; }
+inline uint16_t ok_5_16(uint8_t x) { return (x * 65535 + 15) / 31; }
+inline uint8_t ok_16_5(uint16_t x) { return (x * 31 + 32767) / 65535; }
 
-inline uint8_t ok_conv_8_8(uint8_t x) { return x; }
-inline uint8_t ok_conv_8_8_r(uint8_t x) { return x; }
-inline uint8_t ok_conv_8_16(uint16_t x) { return (x + 128) / 257; }
-inline uint16_t ok_conv_8_16_r(uint8_t x) { return x * 257; }
+inline uint8_t ok_6_8(uint8_t x) { return (x * 255 + 31) / 63; }
+inline uint8_t ok_8_6(uint8_t x) { return (x * 63 + 127) / 255; }
+inline uint16_t ok_6_16(uint8_t x) { return (x * 65535 + 31) / 63; }
+inline uint8_t ok_16_6(uint16_t x) { return (x * 63 + 32767) / 65535; }
 
-inline uint16_t ok_conv_16_16(uint16_t x) { return x; }
-inline uint16_t ok_conv_16_16_r(uint16_t x) { return x; }
+inline uint8_t ok_8_8(uint8_t x) { return x; }
+inline uint16_t ok_8_16(uint8_t x) { return x * 257; }
+inline uint8_t ok_16_8(uint16_t x) { return (x + 128) / 257; }
+inline uint16_t ok_16_16(uint16_t x) { return x; }
 
-inline uint8_t ok_conv_100_8(uint8_t x) { return (x * 100 + 127) / 255; }
-inline uint8_t ok_conv_100_8_r(uint8_t x) { return (x * 255 + 50) / 100; }
-inline uint8_t ok_conv_100_16(uint16_t x) { return (x * 100 + 32767) / 65535; }
-inline uint16_t ok_conv_100_16_r(uint8_t x) { return (x * 65535 + 50) / 100; }
+inline uint8_t ok_8_pc(uint8_t x) { return (x * 100 + 127) / 255; }
+inline uint8_t ok_pc_8(uint8_t x) { return (x * 255 + 50) / 100; }
+inline uint16_t ok_pc_16(uint8_t x) { return (x * 65535 + 50) / 100; }
+inline uint8_t ok_16_pc(uint16_t x) { return (x * 100 + 32767) / 65535; }
 
-inline uint16_t ok_conv_360_8(uint8_t x) { return x * 360 / 256; }
-inline uint8_t ok_conv_360_8_r(uint16_t x) { return x * 256 / 360; }
-inline uint16_t ok_conv_360_16(uint16_t x) { return x * 360 / 65536; }
-inline uint16_t ok_conv_360_16_r(uint16_t x) { return x * 65536 / 360; }
+// Angle conversions: interpolate between 0=>0 and (a_max+1)=>(a_max+1)
+inline uint16_t ok_8_16_a(uint8_t x) { return x * 256; }
+inline uint8_t ok_16_8_a(uint16_t x) { return x / 256; }
+inline uint16_t ok_8_deg(uint8_t x) { return (x * 360 + 128) / 256; }
+inline uint8_t ok_deg_8(uint16_t x) { return (x * 256 + 180) / 360; }
+inline uint16_t ok_deg_16(uint16_t x) { return x * 65536 / 360; }
+inline uint16_t ok_16_deg(uint16_t x) { return (x * 360 + 359) / 65536; }

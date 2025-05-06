@@ -23,12 +23,13 @@ struct ok_hsv_HHH { uint16_t h, s, v; };
 
 // Conversions: [ok_type]_from([ok_other_type] value)
 
-OK_CONV_H_SV(ok_hsv_888, ok_hsv_H88, ok_conv_8_16, ok_conv_8_8);
-OK_CONV_H_SV(ok_hsv_888, ok_hsv_HHH, ok_conv_8_16, ok_conv_8_16);
-OK_CONV_H_SV(ok_hsv_977, ok_hsv_888, ok_conv_360_8, ok_conv_100_8);
-OK_CONV_H_SV(ok_hsv_977, ok_hsv_H88, ok_conv_360_16, ok_conv_100_8);
-OK_CONV_H_SV(ok_hsv_977, ok_hsv_HHH, ok_conv_360_16, ok_conv_100_16);
-OK_CONV_H_SV(ok_hsv_H88, ok_hsv_HHH, ok_conv_16_16, ok_conv_8_16);
+// Use angle conversions for hue
+OK_CONV_H_SV(ok_hsv_888, ok_hsv_H88, ok_8_16_a, ok_16_8_a, ok_8_8, ok_8_8);
+OK_CONV_H_SV(ok_hsv_888, ok_hsv_HHH, ok_8_16_a, ok_16_8_a, ok_8_16, ok_16_8);
+OK_CONV_H_SV(ok_hsv_977, ok_hsv_888, ok_deg_8, ok_8_deg, ok_pc_8, ok_8_pc);
+OK_CONV_H_SV(ok_hsv_977, ok_hsv_H88, ok_deg_16, ok_16_deg, ok_pc_8, ok_8_pc);
+OK_CONV_H_SV(ok_hsv_977, ok_hsv_HHH, ok_deg_16, ok_16_deg, ok_pc_16, ok_16_pc);
+OK_CONV_H_SV(ok_hsv_H88, ok_hsv_HHH, ok_16_16, ok_16_16, ok_8_16, ok_16_8);
 
 OK_CONV_EXTERN(ok_srgb_888, ok_hsv_977);
 OK_CONV_EXTERN(ok_srgb_888, ok_hsv_H88);

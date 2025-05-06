@@ -15,7 +15,7 @@ struct ok_lrgb_888 { uint8_t r, g, b; };
 struct ok_lrgb_HHH { uint16_t r, g, b; };
 
 // Conversions: [ok_type]_from([ok_other_type] value)
-OK_CONV_RB_G(ok_lrgb_888, ok_lrgb_HHH, ok_conv_8_16, ok_conv_8_16);
+OK_CONV_RB_G(ok_lrgb_888, ok_lrgb_HHH, ok_8_16, ok_16_8, ok_8_16, ok_16_8);
 OK_CONV_EXTERN(ok_srgb_HHH, ok_lrgb_HHH);
 
 OK_CONV_CHAIN(ok_srgb_HHH, ok_lrgb_HHH, ok_lrgb_888);
