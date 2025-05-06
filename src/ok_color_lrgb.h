@@ -1,32 +1,24 @@
 // Embedded-friendly representation of linear RGB-based color space.
+// Uses the same primaries as sRGB but without the "gamma" transfer function.
 
 #pragma once
 
 #include <cstdint>
 
 #include "ok_color_helpers.h"
-#include "ok_color_srgb.h"
 
-// Linear 8-bit RGB as used for LED output, raw camera data, color mixing, etc.
-// Uses the same primaries as sRGB but without the transfer function.
+// 24-bit/pixel (8-bit/component) linear RGB as used in LED/DMX output, etc.
+//
+// Warning, 8-bit linear RGB values are low precision, avoid in intermediates:
+// https://blog.demofox.org/2018/03/10/dont-convert-srgb-u8-to-linear-u8/
 struct ok_lrgb_888 { uint8_t r, g, b; };
 
-// Linear 48-bit RGB (0-65535 instead of 0-255).
+// 48-bit/pixel linear RGB, suitable for mixing and other processing.
 struct ok_lrgb_HHH { uint16_t r, g, b; };
 
 //
 // Conversions: <type>_from(<other>), eg. ok_lrgb_888_from(ok_srgb_565 value)
 //
 
-// ok_lrgb_HHH <-> ok_srgb_HHH
-OK_CONV_EXTERN(ok_srgb_HHH, ok_lrgb_HHH);
-
 // ok_lrgb_888 <-> ok_lrgb_HHH
 OK_CONV_RB_G(ok_lrgb_888, ok_lrgb_HHH, ok_8_16, ok_16_8, ok_8_16, ok_16_8);
-
-// ok_srgb_{565,888,HHH} <-> ok_lrgb_{888,HHH}
-OK_CONV_CHAIN(ok_srgb_HHH, ok_lrgb_HHH, ok_lrgb_888);
-OK_CONV_CHAIN(ok_srgb_888, ok_srgb_HHH, ok_lrgb_HHH);
-OK_CONV_CHAIN(ok_srgb_888, ok_srgb_HHH, ok_lrgb_888);
-OK_CONV_CHAIN(ok_srgb_565, ok_srgb_888, ok_lrgb_888);
-OK_CONV_CHAIN(ok_srgb_565, ok_srgb_888, ok_lrgb_HHH);

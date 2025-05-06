@@ -14,7 +14,7 @@ ok_color_inc = include_directories('../src')
 ok_color_lib = library(
   'ok_color_lib', [
     '../src/ok_color_hsv.cpp',
-    '../src/ok_color_lrgb.cpp',
+    '../src/ok_color_srgb.cpp',
   ],
   include_directories: ok_color_inc,
 )
