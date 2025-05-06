@@ -8,9 +8,11 @@ requires-python = ">=3.12"
 
 # Development dependencies
 dependencies = [
-  "meson~=1.8.0",
-  "ninja>=1.11.1.4",
+  "meson~=1.8.0", # for building tests
+  "ninja>=1.11.1.4", # for building tests
+  "numpy>=2.2.5", # for lookup tables
   "ok-logging-setup~=0.1",
   "ok-subprocess-defaults~=0.1",
+  "pwlf>=2.5.1", # for lookup tables
   "pyserial~=3.4", # needed for arduino-cli and port discovery
 ]

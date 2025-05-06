@@ -31,7 +31,6 @@ OK_CONV_RB_G(ok_srgb_565, ok_srgb_HHH, ok_5_16, ok_16_5, ok_6_16, ok_16_6);
 OK_CONV_RB_G(ok_srgb_888, ok_srgb_HHH, ok_8_16, ok_16_8, ok_8_16, ok_16_8);
 
 // ok_srgb_{888,HHH} <-> ok_lrgb_{888,HHH}
-// https://blog.demofox.org/2018/03/10/dont-convert-srgb-u8-to-linear-u8/
 OK_CONV_EXTERN(ok_srgb_HHH, ok_lrgb_HHH);
 OK_CONV_EXTERN(ok_srgb_888, ok_lrgb_HHH);
 OK_CONV_EXTERN(ok_srgb_888, ok_lrgb_888);
