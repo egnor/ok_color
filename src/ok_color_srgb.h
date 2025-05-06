@@ -38,7 +38,5 @@ OK_CONV_EXTERN(ok_srgb_888, ok_lrgb_888);
 
 // ok_srgb_{565,888,HHH} <-> ok_lrgb_{888,HHH} (not covered above)
 OK_CONV_CHAIN(ok_srgb_HHH, ok_lrgb_HHH, ok_lrgb_888);                           
-OK_CONV_CHAIN(ok_srgb_888, ok_srgb_HHH, ok_lrgb_HHH);                           
-OK_CONV_CHAIN(ok_srgb_888, ok_srgb_HHH, ok_lrgb_888);                           
 OK_CONV_CHAIN(ok_srgb_565, ok_srgb_888, ok_lrgb_888);                           
 OK_CONV_CHAIN(ok_srgb_565, ok_srgb_888, ok_lrgb_HHH);
