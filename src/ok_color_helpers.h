@@ -12,14 +12,15 @@
   inline A A##_from(C x) { return A##_from(B##_from(x)); } \
   inline C C##_from(A x) { return C##_from(B##_from(x)); } \
 
-// RGB range conversion (RB and G conversions specified separately for 5:6:5)
-// Expects range conversion helper functions for {rb, g}_{ab, ba} parameters
+// RGB range conversion with RB and G conversions optionally separate
+// Expects range conversion helper functions for *{ab, ba} parameters
+#define OK_CONV_RGB(A, B, ab, ba) OK_CONV_RB_G(A, B, ab, ba, ab, ba)
 #define OK_CONV_RB_G(A, B, rb_ab, rb_ba, g_ab, g_ba) \
   inline A A##_from(B x) { return { rb_ba(x.r), g_ba(x.g), rb_ba(x.b) }; } \
   inline B B##_from(A x) { return { rb_ab(x.r), g_ab(x.g), rb_ab(x.b) }; }
 
-// HSV range conversions (H and SV conversions specified separately)
-// Expects range conversion helper functions for {h, sv}_{ab, ba} parameters
+// HSV range conversions with H and SV conversions specified separately
+// Expects range conversion helper functions for *{ab, ba} parameters
 #define OK_CONV_H_SV(A, B, h_ab, h_ba, sv_ab, sv_ba) \
   inline A A##_from(B x) { return { h_ba(x.h), sv_ba(x.s), sv_ba(x.v)}; } \
   inline B B##_from(A x) { return { h_ab(x.h), sv_ab(x.s), sv_ab(x.v)}; }

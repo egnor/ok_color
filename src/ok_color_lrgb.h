@@ -21,4 +21,4 @@ struct ok_lrgb_HHH { uint16_t r, g, b; };
 //
 
 // ok_lrgb_888 <-> ok_lrgb_HHH
-OK_CONV_RB_G(ok_lrgb_888, ok_lrgb_HHH, ok_8_16, ok_16_8, ok_8_16, ok_16_8);
+OK_CONV_RGB(ok_lrgb_888, ok_lrgb_HHH, ok_8_16, ok_16_8);
